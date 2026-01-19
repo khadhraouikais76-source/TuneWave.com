@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Music Player</title>
+<style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298, #ff7e5f, #feb47b);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  color:#fff;
+}
+@keyframes gradientBG {
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+header {
+  background: rgba(0,0,0,0.5);
+  padding:15px;
+  text-align:center;
+  border-bottom:2px solid #fff;
+  border-radius:0 0 20px 20px;
+}
+
+input, select {
+  padding:8px;
+  border:none;
+  border-radius:20px;
+  outline:none;
+  margin-top:5px;
+  width: calc(50% - 10px);
+  max-width:200px;
+}
+
+button {
+  padding:8px 16px;
+  border:none;
+  border-radius:20px;
+  background:#1db954;
+  color:#fff;
+  cursor:pointer;
+  margin-left:5px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+button:hover { transform: scale(1.1); }
+
+.results {
+  display:flex;
+  flex-wrap:wrap;
+  gap:15px;
+  padding:15px;
+  justify-content:center;
+}
+
+.card {
+  background: rgba(0,0,0,0.6);
+  padding:10px;
+  border-radius:15px;
+  width:45%;
+  max-width:220px;
+  text-align:center;
+  position:relative;
+  box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+  transition: transform 0.2s;
+}
+.card:hover { transform: translateY(-5px); }
+
+.card img { width:100%; border-radius:10px; }
+
+/* مشغل الصوت ملون وجذاب */
+audio {
+  width:100%;
+  margin-top:5px;
+  border-radius:10px;
+  background: linear-gradient(90deg, #1db954, #1ed760, #1db954);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  accent-color: #ff6f61;
+}
+
+audio::-webkit-media-controls-panel {
+  background: rgba(0,0,0,0.6);
+  border-radius:10px;
+}
+
+audio::-webkit-media-controls-play-button,
+audio::-webkit-media-controls-volume-slider {
+  filter: hue-rotate(150deg) saturate(1.2);
+}
+
+.download-btn {
+  margin-top:10px;
+  font-size:28px;
+  background: #ff6f61;
+  border-radius:50%;
+  padding:12px 16px;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.5);
+  transition: transform 0.2s, background 0.2s;
+  cursor:pointer;
+  animation: pulse 1.5s infinite;
+}
+.download-btn:hover {
+  transform: scale(1.3);
+  background: #ff3b2e;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Overlay خلفية */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  z-index: 900;
+}
+
+/* Popup تحميل مصحح */
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #ff6f61, #ffb347, #1db954, #1ed760);
+  padding: 20px;
+  border-radius: 20px;
+  display: none;
+  z-index: 1000;
+  width: 90%;          /* نسبة من عرض الشاشة */
+  max-width: 350px;    /* أقصى عرض */
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  box-sizing: border-box; /* يحسب padding داخل العرض */
+  overflow: hidden;        /* يمنع خروج أي عنصر */
+}
+
+/* Progress bar الخلفية */
+.download-progress {
+  width: 100%;
+  height: 22px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 12px;
+  margin-top: 20px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Progress bar الفعلية */
+.download-progress-bar {
+  width: 0%;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #1db954, #1ed760, #1db954);
+  transition: width 0.2s;
+  box-sizing: border-box;
+}
+
+/* نسبة التحميل */
+#downloadPercent {
+  margin-top: 12px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #fff;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+}
+/* ===================== Responsive الهواتف والتابلت ===================== */
+@media (max-width: 768px) {
+  .popup {
+    width: 85%;          /* أصغر من الشاشة */
+    padding: 18px;
+  }
+  .download-progress {
+    height: 18px;
+  }
+  #downloadPercent {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .popup {
+    width: 95%;          /* ملء أكبر جزء من الشاشة الصغيرة */
+    padding: 15px;
+  }
+  .download-progress {
+    height: 16px;
+  }
+  #downloadPercent {
+    font-size: 14px;
+  }
+}
+   .base-ad {
+  width: 320px;        /* عرض العنصر */
+  height: 110px;        /* ارتفاع العنصر */
+  margin: 10px auto;   /* مركزي على الصفحة */
+   /* ضع نفس لون خلفية موقعك */
+  border-radius: 5px;         /* حواف بسيطة */
+}
+</style>
+</head>
+<body>
+ <div class="base-ad"></div>
+<header>
+<h1>TuneWave</h1>
+<h1>Free Music Player</h1>
+<input type="text" id="searchBox" placeholder="Search songs or artists...">
+<select id="genreSelect">
+  <option value="">All Genres</option>
+  <option value="hip hop">Hip Hop</option>
+  <option value="pop">Pop</option>
+  <option value="jazz">Jazz</option>
+  <option value="rock">Rock</option>
+  <option value="electronic">Electronic</option>
+  <option value="classical">Classical</option>
+</select>
+<button onclick="search()">Search</button>
+</header>
+
+<div class="results" id="results"></div>
+
+<!-- Popup تحميل -->
+<div class="overlay" id="overlay"></div>
+<div class="popup" id="popup">
+  <h3 id="popupTitle"></h3>
+  <div class="download-progress">
+    <div class="download-progress-bar" id="downloadBar"></div>
+  </div>
+  <p id="downloadPercent">0%</p>
+</div>
+
+<script>
+const API_BASE = "https://yt-1-jfka.onrender.com";
+
+let currentAudioUrl = "";
+let currentAudioTitle = "";
+
+// البحث
+async function search(){
+  const query = document.getElementById("searchBox").value.trim();
+  const genre = document.getElementById("genreSelect").value;
+  if(!query && !genre) return alert("Enter a search query or select genre");
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = "Loading...";
+
+  try{
+    let searchQuery = query;
+    if(genre) searchQuery += " " + genre; 
+    const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(searchQuery)}`);
+    const data = await res.json();
+
+    if(data.error){ resultsDiv.innerHTML = data.error; return; }
+    if(data.length === 0){ resultsDiv.innerHTML = "No results found"; return; }
+
+    let html = "";
+    data.forEach(track=>{
+      html += `<div class="card">
+        <img src="${track.image}" alt="${track.title}">
+        <h4>${track.title}</h4>
+        <p>${track.artist}</p>
+        <audio controls src="${track.audio}"></audio>
+        <button class="download-btn" onclick="startDownload('${track.audio}','${track.title}')">⬇</button>
+      </div>`;
+    });
+    resultsDiv.innerHTML = html;
+
+  }catch(e){
+    resultsDiv.innerHTML = "Error: "+e.message;
+  }
+}
+
+// بدء تحميل + Popup
+function startDownload(url,title){
+  currentAudioUrl = url;
+  currentAudioTitle = title;
+  document.getElementById("popupTitle").innerText = title;
+  document.getElementById("overlay").style.display = "block";
+  document.getElementById("popup").style.display = "block";
+  document.getElementById("downloadBar").style.width = "0%";
+  document.getElementById("downloadPercent").innerText = "0%";
+
+  downloadWithProgress(url,title);
+}
+
+// تحميل عبر الباك-إند + progress
+function downloadWithProgress(url,title){
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", `${API_BASE}/download?url=${encodeURIComponent(url)}`);
+  xhr.responseType = "blob";
+
+  xhr.onprogress = function(e){
+    let percent = 0;
+    if(e.lengthComputable){
+      percent = Math.floor((e.loaded / e.total) * 100);
+    } else {
+      percent = Math.min(90, parseInt(document.getElementById("downloadBar").style.width) + 1);
+    }
+
+    // تغيير لون progress bar ديناميكي حسب النسبة
+    const bar = document.getElementById("downloadBar");
+    const r = Math.floor(255 - 2*percent);
+    const g = Math.floor(111 + percent);
+    const b = Math.floor(97 + percent);
+    bar.style.background = `rgb(${r},${g},${b})`;
+
+    bar.style.width = percent + "%";
+    document.getElementById("downloadPercent").innerText = percent + "%";
+  };
+
+  xhr.onload = function(){
+    if(xhr.status === 200){
+      const blobUrl = window.URL.createObjectURL(xhr.response);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = title + ".mp3";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(blobUrl);
+
+      document.getElementById("downloadBar").style.width = "100%";
+      document.getElementById("downloadPercent").innerText = "Download Complete";
+
+      setTimeout(()=>{
+        document.getElementById("popup").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
+      },1000);
+    } else {
+      alert("Download failed");
+    }
+  };
+
+  xhr.onerror = function(){ alert("Download error"); };
+
+  xhr.send();
+}
+</script>
+<script async="async" data-cfasync="false" src="https://pl28271657.effectivegatecpm.com/7ce278eca43002f8c43475716f0e33ac/invoke.js"></script>
+<div id="container-7ce278eca43002f8c43475716f0e33ac"></div>
+  
+  <script src="https://pl28271677.effectivegatecpm.com/80/ad/57/80ad5725e11d3a76d1393f090a382411.js"></script>
+  
+  
+</body>
+</html>
