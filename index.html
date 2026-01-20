@@ -5,349 +5,144 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TuneWave - Free Music Player</title>
 <style>
-body {
-  margin:0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #1e3c72, #2a5298, #ff7e5f, #feb47b);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
-  color:#fff;
-}
-@keyframes gradientBG {
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
-}
-
-header {
-  background: rgba(0,0,0,0.5);
-  padding:20px 10px;
-  text-align:center;
-  border-bottom:2px solid #fff;
-  border-radius:0 0 25px 25px;
-}
-
-header h1 {
-  margin:5px 0;
-  font-size: 24px;
-}
-
-input, select {
-  padding:10px;
-  border:none;
-  border-radius:25px;
-  outline:none;
-  margin-top:8px;
-  width: calc(50% - 10px);
-  max-width:220px;
-  font-size: 16px;
-}
-
-button {
-  padding:10px 20px;
-  border:none;
-  border-radius:25px;
-  background:#1db954;
-  color:#fff;
-  cursor:pointer;
-  margin-left:5px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-  transition: transform 0.2s;
-  font-size: 16px;
-}
-button:hover { transform: scale(1.05); }
-
-.results {
-  display:flex;
-  flex-wrap:wrap;
-  gap:15px;
-  padding:15px;
-  justify-content:center;
-}
-
-.card {
-  background: rgba(0,0,0,0.6);
-  padding:15px;
-  border-radius:20px;
-  width:45%;
-  max-width:260px;
-  text-align:center;
-  position:relative;
-  box-shadow: 0 8px 15px rgba(0,0,0,0.5);
-  transition: transform 0.2s;
-}
-.card:hover { transform: translateY(-5px); }
-
+body { margin:0; font-family: Arial,sans-serif; background: linear-gradient(135deg,#1e3c72,#2a5298); color:#fff; }
+header { padding:20px;text-align:center;background: rgba(0,0,0,.4);}
+input, select, button { padding:10px; border-radius:20px; border:none; outline:none; margin:5px; font-size:15px;}
+button { background:#1db954;color:#fff;cursor:pointer;}
+.results { padding:15px; display:flex; flex-wrap:wrap; justify-content:center; gap:15px;}
+.card { width:90%; max-width:300px; background: rgba(0,0,0,.6); border-radius:20px; padding:12px; text-align:center;}
 .card img { width:100%; border-radius:15px; }
-
-/* مشغل الصوت ملون وجذاب */
-audio {
-  width:100%;
-  margin-top:10px;
-  border-radius:12px;
-  background: linear-gradient(90deg, #1db954, #1ed760, #1db954);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-  accent-color: #ff6f61;
-}
-
-/* زر التحميل */
-.download-btn {
-  margin-top:12px;
-  font-size:24px;
-  background: #ff6f61;
-  border-radius:50%;
-  padding:14px 18px;
-  box-shadow: 0 6px 10px rgba(0,0,0,0.5);
-  transition: transform 0.2s, background 0.2s;
-  cursor:pointer;
-  animation: pulse 1.5s infinite;
-}
-.download-btn:hover {
-  transform: scale(1.2);
-  background: #ff3b2e;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
-
-/* Overlay خلفية */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  z-index: 900;
-}
-
-/* Popup تحميل */
-.popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: linear-gradient(135deg, #ff6f61, #ffb347, #1db954, #1ed760);
-  padding: 25px;
-  border-radius: 25px;
-  display: none;
-  z-index: 1000;
-  width: 90%;
-  max-width: 360px;
-  text-align: center;
-  color: #fff;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-/* Progress bar الخلفية */
-.download-progress {
-  width: 100%;
-  height: 24px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 12px;
-  margin-top: 20px;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-/* Progress bar الفعلية */
-.download-progress-bar {
-  width: 0%;
-  height: 100%;
-  border-radius: 12px;
-  background: linear-gradient(90deg, #1db954, #1ed760, #1db954);
-  transition: width 0.2s;
-  box-sizing: border-box;
-}
-
-/* نسبة التحميل */
-#downloadPercent {
-  margin-top: 12px;
-  font-weight: bold;
-  font-size: 18px;
-  color: #fff;
-  text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .card { width: 90%; }
-  .popup { width: 85%; padding: 20px; }
-  .download-progress { height: 20px; }
-  #downloadPercent { font-size: 16px; }
-}
-@media (max-width: 480px) {
-  .popup { width: 95%; padding: 18px; }
-  .download-progress { height: 18px; }
-  #downloadPercent { font-size: 14px; }
-  input, select, button { width: 80%; margin-top:8px; }
-}
-  .base-ad {
-  width: 320px;        /* عرض العنصر */
-  height: 100px;        /* ارتفاع العنصر */
-  margin: 10px auto;   /* مركزي على الصفحة */
-   /* ضع نفس لون خلفية موقعك */
-  border-radius: 5px;         /* حواف بسيطة */
-}
+audio { width:100%; margin-top:8px; }
+.download-btn { margin-top:10px; font-size:22px; border-radius:50%; padding:10px 14px; background:#ff6f61; cursor:pointer; }
+.overlay { position:fixed; inset:0; background: rgba(0,0,0,.6); display:none; z-index:1000; }
+.loader-box { position:fixed; top:50%; left:50%; transform: translate(-50%,-50%); display:none; text-align:center; z-index:1001; }
+.loader { width:70px; height:70px; border:7px solid rgba(255,255,255,.3); border-top:7px solid #1db954; border-radius:50%; animation: spin 1s linear infinite; margin:auto; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#111; padding:20px; border-radius:20px; display:none; z-index:1002; width:90%; max-width:320px; text-align:center; }
+.progress { width:100%; height:16px; background:#333; border-radius:10px; overflow:hidden; margin-top:15px; }
+.progress-bar { height:100%; width:0%; background:#1db954; transition: width 0.2s; }
 </style>
 </head>
 <body>
+
 <header>
-  <div class="base-ad"></div>
-<h1>TuneWave</h1>
-<h1>Free Music Player</h1>
-<input type="text" id="searchBox" placeholder="Search songs or artists...">
-<select id="genreSelect">
-  <option value="">All Genres</option>
-  <option value="hip hop">Hip Hop</option>
+<h2>TuneWave</h2>
+<input id="searchBox" placeholder="Search song or artist">
+<select id="genre">
+  <option value="">All</option>
   <option value="pop">Pop</option>
-  <option value="jazz">Jazz</option>
   <option value="rock">Rock</option>
-  <option value="electronic">Electronic</option>
-  <option value="classical">Classical</option>
+  <option value="hip hop">Hip Hop</option>
 </select>
+<br>
 <button onclick="search()">Search</button>
 </header>
 
 <div class="results" id="results"></div>
 
-<!-- Popup تحميل -->
 <div class="overlay" id="overlay"></div>
+<div class="loader-box" id="loaderBox"><div class="loader"></div><p>Searching...</p></div>
+
 <div class="popup" id="popup">
-  <h3 id="popupTitle"></h3>
-  <div class="download-progress">
-    <div class="download-progress-bar" id="downloadBar"></div>
-  </div>
-  <p id="downloadPercent">0%</p>
+  <h4 id="popupTitle"></h4>
+  <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+  <p id="progressText">0%</p>
 </div>
 
 <script>
-const API_BASE = "https://yt-1-jfka.onrender.com";
+const API = "https://yt-1-jfka.onrender.com";
 
-let currentAudioUrl = "";
-let currentAudioTitle = "";
+function showLoader(show){
+  document.getElementById("overlay").style.display = show?"block":"none";
+  document.getElementById("loaderBox").style.display = show?"block":"none";
+}
 
-// البحث
 async function search(){
-  const query = document.getElementById("searchBox").value.trim();
-  const genre = document.getElementById("genreSelect").value;
-  if(!query && !genre) return alert("Enter a search query or select genre");
-  const resultsDiv = document.getElementById("results");
-  resultsDiv.innerHTML = "Loading...";
-
-  try{
-    let searchQuery = query;
-    if(genre) searchQuery += " " + genre; 
-    const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(searchQuery)}`);
-    const data = await res.json();
-
-    if(data.error){ resultsDiv.innerHTML = data.error; return; }
-    if(data.length === 0){ resultsDiv.innerHTML = "No results found"; return; }
-
-    let html = "";
-    data.forEach(track=>{
-      html += `<div class="card">
-        <img src="${track.image}" alt="${track.title}">
-        <h4>${track.title}</h4>
-        <p>${track.artist}</p>
-        <audio controls src="${track.audio}"></audio>
-        <button class="download-btn" onclick="startDownload('${track.audio}','${track.title}')">⬇</button>
+  const q = searchBox.value.trim();
+  const g = genre.value;
+  if(!q && !g) return alert("Enter search text");
+  results.innerHTML = "";
+  showLoader(true);
+  try {
+    const res = await fetch(`${API}/search?q=${encodeURIComponent(q+" "+g)}`);
+    const json = await res.json();
+    const data = json.results || json;
+    if(!data || data.length===0){ results.innerHTML="No results"; return;}
+    data.forEach(t=>{
+      if(!t.audio) return;
+      results.innerHTML += `
+      <div class="card">
+        <img src="${t.image}">
+        <h4>${t.title}</h4>
+        <p>${t.artist}</p>
+        <audio controls src="${t.audio}"></audio>
+        <button class="download-btn" onclick="download('${t.audio}','${t.title.replace(/'/g,'')}')">⬇</button>
       </div>`;
     });
-    resultsDiv.innerHTML = html;
-
-  }catch(e){
-    resultsDiv.innerHTML = "Error: "+e.message;
-  }
+  } catch(e){ results.innerHTML="Error loading results"; }
+  finally{ showLoader(false); }
 }
 
-// بدء تحميل + Popup
-function startDownload(url,title){
-  currentAudioUrl = url;
-  currentAudioTitle = title;
-  document.getElementById("popupTitle").innerText = title;
-  document.getElementById("overlay").style.display = "block";
-  document.getElementById("popup").style.display = "block";
-  document.getElementById("downloadBar").style.width = "0%";
-  document.getElementById("downloadPercent").innerText = "0%";
+// دالة Download
+function download(url, title){
+  popupTitle.innerText = title;
+  overlay.style.display = "block";
+  popup.style.display = "block";
+  progressBar.style.width = "0%";
+  progressText.innerText = "Waiting...";
 
-  // إذا كان التطبيق WebView في أندرويد
-  if(window.Android){
-    window.Android.downloadFile(url,title);
-    document.getElementById("downloadBar").style.width = "100%";
-    document.getElementById("downloadPercent").innerText = "Download Started";
-    setTimeout(()=>{
-      document.getElementById("popup").style.display = "none";
-      document.getElementById("overlay").style.display = "none";
-    },1000);
+  if(window.Android && Android.downloadFile){
+    // WebView: ينادي Android function لفتح SAF
+    Android.downloadFile(url, title + ".mp3");
+    progressBar.style.width = "0%";
+    progressText.innerText = "Waiting for user...";
   } else {
-    // fallback للمتصفح
-    downloadWithProgress(url,title);
+    // Browser fallback: تحميل عبر XMLHttpRequest مع Progress
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url);
+    xhr.responseType = "blob";
+
+    xhr.onprogress = function(e){
+      if(e.lengthComputable){
+        const percent = Math.floor((e.loaded / e.total) * 100);
+        progressBar.style.width = percent + "%";
+        progressText.innerText = percent + "%";
+      }
+    };
+
+    xhr.onload = function(){
+      if(xhr.status === 200){
+        const blobUrl = URL.createObjectURL(xhr.response);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = title + ".mp3";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(blobUrl);
+
+        progressBar.style.width = "100%";
+        progressText.innerText = "Download Complete";
+        setTimeout(closePopup, 1000);
+      } else {
+        progressText.innerText = "Download Failed";
+        setTimeout(closePopup, 1000);
+      }
+    };
+
+    xhr.onerror = function(){
+      progressText.innerText = "Download Error";
+      setTimeout(closePopup, 1000);
+    };
+
+    xhr.send();
   }
 }
 
-// تحميل عبر XMLHttpRequest للمتصفح
-function downloadWithProgress(url,title){
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", url);
-  xhr.responseType = "blob";
-
-  xhr.onprogress = function(e){
-    let percent = 0;
-    if(e.lengthComputable){
-      percent = Math.floor((e.loaded / e.total) * 100);
-    } else {
-      percent = Math.min(90, parseInt(document.getElementById("downloadBar").style.width) + 1);
-    }
-
-    const bar = document.getElementById("downloadBar");
-    const r = Math.floor(255 - 2*percent);
-    const g = Math.floor(111 + percent);
-    const b = Math.floor(97 + percent);
-    bar.style.background = `rgb(${r},${g},${b})`;
-
-    bar.style.width = percent + "%";
-    document.getElementById("downloadPercent").innerText = percent + "%";
-  };
-
-  xhr.onload = function(){
-    if(xhr.status === 200){
-      const blobUrl = window.URL.createObjectURL(xhr.response);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = title + ".mp3";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(blobUrl);
-
-      document.getElementById("downloadBar").style.width = "100%";
-      document.getElementById("downloadPercent").innerText = "Download Complete";
-
-      setTimeout(()=>{
-        document.getElementById("popup").style.display = "none";
-        document.getElementById("overlay").style.display = "none";
-      },1000);
-    } else {
-      alert("Download failed");
-    }
-  };
-
-  xhr.onerror = function(){ alert("Download error"); };
-  xhr.send();
+function closePopup(){
+  popup.style.display = "none";
+  overlay.style.display = "none";
 }
 </script>
-  	<script async="async" data-cfasync="false" src="https://pl28271657.effectivegatecpm.com/7ce278eca43002f8c43475716f0e33ac/invoke.js"></script>
-<div id="container-7ce278eca43002f8c43475716f0e33ac"></div>
-  
-  <script src="https://pl28271677.effectivegatecpm.com/80/ad/57/80ad5725e11d3a76d1393f090a382411.js"></script>
-  
-  
 </body>
 </html>
