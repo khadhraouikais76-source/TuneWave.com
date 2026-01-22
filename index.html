@@ -4,20 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TuneWave - Free Music Player</title>
+
 <style>
 body { margin:0; font-family: Arial,sans-serif; background: linear-gradient(135deg,#1e3c72,#2a5298); color:#fff; }
+
+/* Header */
 header { padding:20px;text-align:center;background: rgba(0,0,0,.4);}
 input, select, button { padding:10px; border-radius:20px; border:none; outline:none; margin:5px; font-size:15px;}
 button { background:#1db954;color:#fff;cursor:pointer;}
+
+/* Results */
 .results { padding:15px; display:flex; flex-wrap:wrap; justify-content:center; gap:15px;}
 .card { width:90%; max-width:300px; background: rgba(0,0,0,.6); border-radius:20px; padding:12px; text-align:center;}
 .card img { width:100%; border-radius:15px; }
 audio { width:100%; margin-top:8px; }
 .download-btn { margin-top:10px; font-size:22px; border-radius:50%; padding:10px 14px; background:#ff6f61; cursor:pointer; }
+
+/* Overlay + Loader */
 .overlay { position:fixed; inset:0; background: rgba(0,0,0,.6); display:none; z-index:1000; }
 .loader-box { position:fixed; top:50%; left:50%; transform: translate(-50%,-50%); display:none; text-align:center; z-index:1001; }
 .loader { width:70px; height:70px; border:7px solid rgba(255,255,255,.3); border-top:7px solid #1db954; border-radius:50%; animation: spin 1s linear infinite; margin:auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Popup Download */
 .popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#111; padding:20px; border-radius:20px; display:none; z-index:1002; width:90%; max-width:320px; text-align:center; }
 .progress { width:100%; height:16px; background:#333; border-radius:10px; overflow:hidden; margin-top:15px; }
 .progress-bar { height:100%; width:0%; background:#1db954; transition: width 0.2s; }
@@ -83,58 +92,49 @@ async function search(){
   finally{ showLoader(false); }
 }
 
-// دالة Download
-function download(url, title){
+// Download with Progress
+function download(url,title){
   popupTitle.innerText = title;
   overlay.style.display = "block";
   popup.style.display = "block";
   progressBar.style.width = "0%";
-  progressText.innerText = "Waiting...";
+  progressText.innerText = "0%";
 
-  if(window.Android && Android.downloadFile){
-    // WebView: ينادي Android function لفتح SAF
-    Android.downloadFile(url, title + ".mp3");
-    progressBar.style.width = "0%";
-    progressText.innerText = "Waiting for user...";
+  if(window.Android && Android.saveFile){
+    // WebView Android
+    Android.saveFile(url,title+".mp3");
+    progressBar.style.width="100%";
+    progressText.innerText="Download started";
+    setTimeout(closePopup,1200);
   } else {
-    // Browser fallback: تحميل عبر XMLHttpRequest مع Progress
+    // Browser fallback with progress
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", url);
-    xhr.responseType = "blob";
+    xhr.open("GET",url);
+    xhr.responseType="blob";
 
     xhr.onprogress = function(e){
-      if(e.lengthComputable){
-        const percent = Math.floor((e.loaded / e.total) * 100);
-        progressBar.style.width = percent + "%";
-        progressText.innerText = percent + "%";
-      }
+      let percent = 0;
+      if(e.lengthComputable){ percent = Math.floor(e.loaded/e.total*100); }
+      progressBar.style.width = percent+"%";
+      progressText.innerText = percent+"%";
     };
 
     xhr.onload = function(){
-      if(xhr.status === 200){
+      if(xhr.status===200){
         const blobUrl = URL.createObjectURL(xhr.response);
         const a = document.createElement("a");
         a.href = blobUrl;
-        a.download = title + ".mp3";
+        a.download = title+".mp3";
         document.body.appendChild(a);
         a.click();
         a.remove();
         URL.revokeObjectURL(blobUrl);
-
-        progressBar.style.width = "100%";
-        progressText.innerText = "Download Complete";
-        setTimeout(closePopup, 1000);
-      } else {
-        progressText.innerText = "Download Failed";
-        setTimeout(closePopup, 1000);
-      }
+        progressBar.style.width="100%";
+        progressText.innerText="Download Complete";
+        setTimeout(closePopup,1000);
+      } else { alert("Download failed"); closePopup(); }
     };
-
-    xhr.onerror = function(){
-      progressText.innerText = "Download Error";
-      setTimeout(closePopup, 1000);
-    };
-
+    xhr.onerror = function(){ alert("Download error"); closePopup(); };
     xhr.send();
   }
 }
@@ -144,5 +144,10 @@ function closePopup(){
   overlay.style.display = "none";
 }
 </script>
+<div class="base-ad" id="nativeAd"></div>
+<script async="async" data-cfasync="false" src="https://pl28525773.effectivegatecpm.com/ee0ef651f481f5e11b08745c958b22ac/invoke.js"></script>
+<div id="container-ee0ef651f481f5e11b08745c958b22ac"></div>
+<script src="https://pl28491411.effectivegatecpm.com/3d/99/b1/3d99b18483592ed475b432a3eefbb12b.js"></script>
+
 </body>
 </html>
